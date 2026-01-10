@@ -1,0 +1,25 @@
+/backend
+├── .env                  # Grouped environment variables
+├── main.py               # Entry point (initializes app, middleware)
+└── app/
+    ├── __init__.py
+    ├── config.py         # Loads env vars and settings
+    ├── database.py       # DB connection handling
+    ├── models.py         # Pydantic models (Data validation)
+    ├── routers/          # API endpoints (Controllers)
+    │   └── weather.py
+    └── services/         # Business logic (External API & Caching)
+        └── weather_service.py
+
+/src
+├── api/                  # Network requests (Services)
+│   └── weather.ts
+├── components/           # UI Logic (DOM manipulation)
+│   ├── Counter.ts
+│   └── WeatherWidget.ts
+├── types/                # Shared Interfaces (Models)
+│   └── index.ts
+├── utils/                # Helper functions (Business Logic)
+│   └── formatting.ts
+├── main.ts               # Entry Point
+└── style.css
