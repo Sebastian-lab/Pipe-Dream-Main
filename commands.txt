@@ -4,3 +4,8 @@ launching local test servers for mongodb: uvicorn mongodb:app --reload --host 0.
 
 launching local test server for frontend (Vite): npm run dev -- --host
 
+Installing the correct node version and packages using nvm:
+nvm install
+nvm use
+npm ci
+
