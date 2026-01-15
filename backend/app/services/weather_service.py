@@ -1,7 +1,11 @@
 import requests
+import pandas as pd
 from datetime import datetime, timedelta
 from app.database import get_db_collection
 from app.config import settings
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 # Static configuration for cities
 CITIES = [
@@ -69,5 +73,21 @@ def get_city_readings():
             "city": city["name"],
             "readings": readings[-10:]  # ensure only last 10
         })
-
+    
+    get_city_history()
     return cities
+
+def get_city_history():
+    collection = get_db_collection("city_readings")
+    data = []
+    for city in CITIES:
+        cached_doc = collection.find_one({"city": city["name"]})
+        # print(cached_doc)
+        # print()
+        df = pd.json_normalize(cached_doc, record_path="readings", meta=["city"])
+        df["localTime"] = pd.to_datetime(df["localTime"], utc=True).dt.strftime("%H:%M:%S")
+        df.drop(columns=["timezone"], inplace=True)
+        data.append(df)
+    for x in data:
+        print(x) #19:58:20
+    return 0

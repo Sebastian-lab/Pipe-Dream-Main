@@ -23,3 +23,394 @@
 │   └── formatting.ts
 ├── main.ts               # Entry Point
 └── style.css
+
+{
+    "city": "Tokyo",
+    "readings": [
+        {
+            "tempC": 6.8,
+            "tempF": 44.24,
+            "timezone": "Asia/Tokyo",
+            "localTime": "2026-01-12T04:03:32.572424Z",
+        },
+        {
+            "tempC": 6.8,
+            "tempF": 44.24,
+            "timezone": "Asia/Tokyo",
+            "localTime": "2026-01-11T20:05:07.153936",
+        },
+        {
+            "tempC": 6.8,
+            "tempF": 44.24,
+            "timezone": "Asia/Tokyo",
+            "localTime": "2026-01-11T20:07:08.219182",
+        },
+        {
+            "tempC": 6.8,
+            "tempF": 44.24,
+            "timezone": "Asia/Tokyo",
+            "localTime": "2026-01-11T20:09:08.179714",
+        },
+        {
+            "tempC": 6.8,
+            "tempF": 44.24,
+            "timezone": "Asia/Tokyo",
+            "localTime": "2026-01-11T20:11:08.569499",
+        },
+        {
+            "tempC": 6.8,
+            "tempF": 44.24,
+            "timezone": "Asia/Tokyo",
+            "localTime": "2026-01-11T20:13:08.144234",
+        },
+        {
+            "tempC": 6.9,
+            "tempF": 44.42,
+            "timezone": "Asia/Tokyo",
+            "localTime": "2026-01-11T20:15:10.408247",
+        },
+        {
+            "tempC": 8.8,
+            "tempF": 47.84,
+            "timezone": "Asia/Tokyo",
+            "localTime": "2026-01-14T19:07:35.378907",
+        },
+        {
+            "tempC": 8.8,
+            "tempF": 47.84,
+            "timezone": "Asia/Tokyo",
+            "localTime": "2026-01-14T19:09:35.255532",
+        },
+        {
+            "tempC": 8.8,
+            "tempF": 47.84,
+            "timezone": "Asia/Tokyo",
+            "localTime": "2026-01-14T19:11:35.267887",
+        },
+    ],
+}
+{
+    "city": "San Diego",
+    "readings": [
+        {
+            "tempC": 12.8,
+            "tempF": 55.04,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-12T04:03:33.570537Z",
+        },
+        {
+            "tempC": 12.8,
+            "tempF": 55.04,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:05:08.089912",
+        },
+        {
+            "tempC": 12.8,
+            "tempF": 55.04,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:07:09.164001",
+        },
+        {
+            "tempC": 12.8,
+            "tempF": 55.04,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:09:09.093195",
+        },
+        {
+            "tempC": 12.8,
+            "tempF": 55.04,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:11:09.550489",
+        },
+        {
+            "tempC": 12.8,
+            "tempF": 55.04,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:13:09.116845",
+        },
+        {
+            "tempC": 12.8,
+            "tempF": 55.04,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:15:11.408200",
+        },
+        {
+            "tempC": 16.1,
+            "tempF": 60.98,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-14T19:07:36.356368",
+        },
+        {
+            "tempC": 16.1,
+            "tempF": 60.98,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-14T19:09:36.249116",
+        },
+        {
+            "tempC": 16.1,
+            "tempF": 60.98,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-14T19:11:36.244578",
+        },
+    ],
+}
+{
+    "city": "Las Vegas",
+    "readings": [
+        {
+            "tempC": 7.9,
+            "tempF": 46.22,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-12T04:03:34.520336Z",
+        },
+        {
+            "tempC": 7.9,
+            "tempF": 46.22,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:05:09.041849",
+        },
+        {
+            "tempC": 7.9,
+            "tempF": 46.22,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:07:10.120625",
+        },
+        {
+            "tempC": 7.9,
+            "tempF": 46.22,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:09:10.034892",
+        },
+        {
+            "tempC": 7.9,
+            "tempF": 46.22,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:11:10.578420",
+        },
+        {
+            "tempC": 7.9,
+            "tempF": 46.22,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:13:10.053118",
+        },
+        {
+            "tempC": 7.9,
+            "tempF": 46.22,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-11T20:15:12.413073",
+        },
+        {
+            "tempC": 15.9,
+            "tempF": 60.62,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-14T19:07:37.332478",
+        },
+        {
+            "tempC": 15.9,
+            "tempF": 60.62,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-14T19:09:37.223037",
+        },
+        {
+            "tempC": 15.9,
+            "tempF": 60.62,
+            "timezone": "America/Los_Angeles",
+            "localTime": "2026-01-14T19:11:37.193435",
+        },
+    ],
+}
+{
+    "city": "London",
+    "readings": [
+        {
+            "tempC": 10.7,
+            "tempF": 51.26,
+            "timezone": "Europe/London",
+            "localTime": "2026-01-12T04:03:35.473445Z",
+        },
+        {
+            "tempC": 10.7,
+            "tempF": 51.26,
+            "timezone": "Europe/London",
+            "localTime": "2026-01-11T20:05:10.000890",
+        },
+        {
+            "tempC": 10.7,
+            "tempF": 51.26,
+            "timezone": "Europe/London",
+            "localTime": "2026-01-11T20:07:11.065235",
+        },
+        {
+            "tempC": 10.7,
+            "tempF": 51.26,
+            "timezone": "Europe/London",
+            "localTime": "2026-01-11T20:09:10.966204",
+        },
+        {
+            "tempC": 10.7,
+            "tempF": 51.26,
+            "timezone": "Europe/London",
+            "localTime": "2026-01-11T20:11:11.555554",
+        },
+        {
+            "tempC": 10.7,
+            "tempF": 51.26,
+            "timezone": "Europe/London",
+            "localTime": "2026-01-11T20:13:11.021354",
+        },
+        {
+            "tempC": 10.7,
+            "tempF": 51.26,
+            "timezone": "Europe/London",
+            "localTime": "2026-01-11T20:15:13.465477",
+        },
+        {
+            "tempC": 8.6,
+            "tempF": 47.48,
+            "timezone": "Europe/London",
+            "localTime": "2026-01-14T19:07:38.341512",
+        },
+        {
+            "tempC": 8.6,
+            "tempF": 47.48,
+            "timezone": "Europe/London",
+            "localTime": "2026-01-14T19:09:38.168687",
+        },
+        {
+            "tempC": 8.6,
+            "tempF": 47.48,
+            "timezone": "Europe/London",
+            "localTime": "2026-01-14T19:11:38.151442",
+        },
+    ],
+}
+{
+    "city": "Sydney",
+    "readings": [
+        {
+            "tempC": 20.8,
+            "tempF": 69.44,
+            "timezone": "Australia/Sydney",
+            "localTime": "2026-01-12T04:03:36.464639Z",
+        },
+        {
+            "tempC": 20.8,
+            "tempF": 69.44,
+            "timezone": "Australia/Sydney",
+            "localTime": "2026-01-11T20:05:10.999520",
+        },
+        {
+            "tempC": 20.8,
+            "tempF": 69.44,
+            "timezone": "Australia/Sydney",
+            "localTime": "2026-01-11T20:07:11.997212",
+        },
+        {
+            "tempC": 20.8,
+            "tempF": 69.44,
+            "timezone": "Australia/Sydney",
+            "localTime": "2026-01-11T20:09:11.928213",
+        },
+        {
+            "tempC": 20.8,
+            "tempF": 69.44,
+            "timezone": "Australia/Sydney",
+            "localTime": "2026-01-11T20:11:12.544968",
+        },
+        {
+            "tempC": 20.8,
+            "tempF": 69.44,
+            "timezone": "Australia/Sydney",
+            "localTime": "2026-01-11T20:13:11.943997",
+        },
+        {
+            "tempC": 21.0,
+            "tempF": 69.8,
+            "timezone": "Australia/Sydney",
+            "localTime": "2026-01-11T20:15:14.465779",
+        },
+        {
+            "tempC": 26.0,
+            "tempF": 78.8,
+            "timezone": "Australia/Sydney",
+            "localTime": "2026-01-14T19:07:39.282154",
+        },
+        {
+            "tempC": 26.0,
+            "tempF": 78.8,
+            "timezone": "Australia/Sydney",
+            "localTime": "2026-01-14T19:09:39.092242",
+        },
+        {
+            "tempC": 26.0,
+            "tempF": 78.8,
+            "timezone": "Australia/Sydney",
+            "localTime": "2026-01-14T19:11:39.130541",
+        },
+    ],
+}
+{
+    "city": "New York",
+    "readings": [
+        {
+            "tempC": -0.2,
+            "tempF": 31.64,
+            "timezone": "America/New_York",
+            "localTime": "2026-01-12T04:03:37.451298Z",
+        },
+        {
+            "tempC": -0.2,
+            "tempF": 31.64,
+            "timezone": "America/New_York",
+            "localTime": "2026-01-11T20:05:11.979836",
+        },
+        {
+            "tempC": -0.2,
+            "tempF": 31.64,
+            "timezone": "America/New_York",
+            "localTime": "2026-01-11T20:07:12.979546",
+        },
+        {
+            "tempC": -0.2,
+            "tempF": 31.64,
+            "timezone": "America/New_York",
+            "localTime": "2026-01-11T20:09:12.846964",
+        },
+        {
+            "tempC": -0.2,
+            "tempF": 31.64,
+            "timezone": "America/New_York",
+            "localTime": "2026-01-11T20:11:13.468807",
+        },
+        {
+            "tempC": -0.2,
+            "tempF": 31.64,
+            "timezone": "America/New_York",
+            "localTime": "2026-01-11T20:13:12.916164",
+        },
+        {
+            "tempC": -0.3,
+            "tempF": 31.46,
+            "timezone": "America/New_York",
+            "localTime": "2026-01-11T20:15:15.507913",
+        },
+        {
+            "tempC": 7.0,
+            "tempF": 44.6,
+            "timezone": "America/New_York",
+            "localTime": "2026-01-14T19:07:40.291209",
+        },
+        {
+            "tempC": 7.0,
+            "tempF": 44.6,
+            "timezone": "America/New_York",
+            "localTime": "2026-01-14T19:09:40.074647",
+        },
+        {
+            "tempC": 7.0,
+            "tempF": 44.6,
+            "timezone": "America/New_York",
+            "localTime": "2026-01-14T19:11:40.105358",
+        },
+    ],
+}
