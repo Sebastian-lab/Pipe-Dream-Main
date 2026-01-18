@@ -6,3 +6,5 @@ requests
 pymongo
 certifi
 python-dotenv
+matplotlib
+pandas
