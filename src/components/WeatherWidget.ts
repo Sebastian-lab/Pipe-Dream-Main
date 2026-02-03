@@ -2,6 +2,9 @@ import { fetchWeatherReadings } from '../api/weather';
 import { formatCityTime } from '../utils/formatting';
 import type { CityReading, Reading } from '../types';
 
+// Use environment variable or fallback for local dev
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 export function setupWeatherWidget(displayContainer: HTMLDivElement) {
   let isFetching = false;
   let latestData: CityReading[] | null = null;
@@ -65,7 +68,22 @@ export function setupWeatherWidget(displayContainer: HTMLDivElement) {
     try {
       latestData = await fetchWeatherReadings();
     } catch (err) {
-      displayContainer.innerHTML = `<p style="color:red">Error: ${err}</p>`;
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      
+      // Handle specific authentication errors
+      if (errorMsg.includes('API key') || errorMsg.includes('401') || errorMsg.includes('403')) {
+        displayContainer.innerHTML = `
+          <p style="color:red">Authentication Error: ${errorMsg}</p>
+          <p style="color:orange; font-size:0.9em;">Check your API key configuration in .env.local</p>
+        `;
+      } else if (errorMsg.includes('CORS') || errorMsg.includes('404')) {
+        displayContainer.innerHTML = `
+          <p style="color:red">Connection Error: ${errorMsg}</p>
+          <p style="color:orange; font-size:0.9em;">Make sure the backend server is running on ${API_BASE_URL}</p>
+        `;
+      } else {
+        displayContainer.innerHTML = `<p style="color:red">Error: ${errorMsg}</p>`;
+      }
     } finally {
       isFetching = false;
     }

@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
+from typing import Dict, Any
 from app.database import get_db_collection
 from app.config import settings
 import matplotlib
@@ -82,12 +83,17 @@ def get_city_history():
     data = []
     for city in CITIES:
         cached_doc = collection.find_one({"city": city["name"]})
-        # print(cached_doc)
-        # print()
-        df = pd.json_normalize(cached_doc, record_path="readings", meta=["city"])
-        df["localTime"] = pd.to_datetime(df["localTime"], utc=True).dt.strftime("%H:%M:%S")
-        df.drop(columns=["timezone"], inplace=True)
-        data.append(df)
+        if cached_doc and "readings" in cached_doc and cached_doc["readings"]:
+            # Convert MongoDB document to regular dict for pandas with proper typing
+            doc_dict: Dict[str, Any] = dict(cached_doc)
+            # Explicit type cast for pandas - we know this is a dict at this point
+            df = pd.json_normalize(doc_dict, record_path="readings", meta=["city"])  # type: ignore
+            df["localTime"] = pd.to_datetime(df["localTime"], utc=True).dt.strftime("%H:%M:%S")
+            if "timezone" in df.columns:
+                df.drop(columns=["timezone"], inplace=True)
+            data.append(df)
+    
+    # Print data for debugging (can be removed in production)
     for x in data:
         print(x) #19:58:20
     return 0
