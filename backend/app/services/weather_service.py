@@ -30,7 +30,7 @@ def fetch_external_weather(lat, lng):
         return None
 
 def get_city_readings():
-    """Get weather readings, keep last 1000 per city"""
+    """Get weather readings, keep last 10080 per city"""
     collection = get_db_collection("city_readings")
     cities = []
 
@@ -57,12 +57,12 @@ def get_city_readings():
                     "localTime": datetime.now().isoformat()
                 }
 
-                # Push new reading, keep last 1000
+                # Push new reading, keep last 10080
                 collection.update_one(
                     {"city": city["name"]},
                     {
                         "$set": {"updated_at": datetime.utcnow()},
-                        "$push": {"readings": {"$each": [new_reading], "$slice": -1000}}
+                        "$push": {"readings": {"$each": [new_reading], "$slice": -10080}}
                     },
                     upsert=True
                 )
@@ -72,7 +72,7 @@ def get_city_readings():
         # Return full city object with readings
         cities.append({
             "city": city["name"],
-            "readings": readings[-1000:]  # ensure only last 1000
+            "readings": readings[-10080:]  # ensure only last 10080
         })
     
     #get_city_history()
@@ -107,7 +107,7 @@ def get_city_history():
         readings = []
 
         if cached_doc and "readings" in cached_doc and cached_doc["readings"]:
-            # Grab most recent reading (you already keep them sliced to last 1000)
+            # Grab most recent reading (you already keep them sliced to last 10080)
             latest_reading = cached_doc["readings"][-1]
             readings = [latest_reading]
 

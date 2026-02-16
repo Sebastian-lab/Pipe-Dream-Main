@@ -6,6 +6,8 @@ from app.config import settings
 from middleware.auth import api_key_middleware
 import logging
 
+print("main.py is imported")
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -82,6 +84,8 @@ if __name__ == "__main__":
     logger.info(f"Starting Weather API in {settings.APP_ENV} mode")
     logger.info(f"CORS origins: {settings.CORS_ORIGINS}")
     logger.info(f"Debug mode: {settings.DEBUG}")
+
+    print("main.py executed")
     
     uvicorn.run(
         "main:app", 
