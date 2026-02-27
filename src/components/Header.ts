@@ -1,0 +1,3 @@
+/*
+The header should have the logo in the top right corner. It should also have the nativation bar.
+*/
