@@ -37,10 +37,15 @@ async def add_security_headers(request: Request, call_next):
 app.middleware("http")(api_key_middleware)
 
 # Enable CORS with environment-specific origins
+cors_origins = settings.CORS_ORIGINS
+allow_credentials = True
+if "*" in cors_origins:
+    allow_credentials = False
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
+    allow_origins=cors_origins,
+    allow_credentials=allow_credentials,
     allow_methods=["GET"],  # Restrict to GET requests only
     allow_headers=["X-API-Key", "Content-Type"],  # Allow only necessary headers
 )
