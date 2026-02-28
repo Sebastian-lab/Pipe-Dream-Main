@@ -7,8 +7,6 @@ services:
       - ./backend:/app
     networks:
       - app-network
-    ports:
-      - "8000:8000"
 
   nginx:
     build:
@@ -19,8 +17,6 @@ services:
       - backend
     networks:
       - app-network
-    ports:
-      - "8080:80"
 
   cloudflared:
     image: cloudflare/cloudflared
