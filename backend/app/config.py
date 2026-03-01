@@ -18,8 +18,9 @@ class Settings(BaseSettings):
     CORS_ORIGINS: Union[List[str], str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
     model_config = SettingsConfigDict(
-        env_file=[".env", ".env.local"],
-        case_sensitive=False
+        env_file=["../.env"],
+        case_sensitive=False,
+        extra="ignore"
     )
     
     @field_validator('CORS_ORIGINS', mode='before')

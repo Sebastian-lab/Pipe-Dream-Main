@@ -105,7 +105,7 @@ export function setupWeatherWidget(displayContainer: HTMLDivElement) {
       if (errorMsg.includes('API key') || errorMsg.includes('401') || errorMsg.includes('403')) {
         displayContainer.innerHTML = `
           <p style="color:red">Authentication Error: ${errorMsg}</p>
-          <p style="color:orange; font-size:0.9em;">Check your API key configuration in .env.local</p>
+          <p style="color:orange; font-size:0.9em;">Check your API key configuration in .env</p>
         `;
       } else if (errorMsg.includes('CORS') || errorMsg.includes('404')) {
         displayContainer.innerHTML = `
