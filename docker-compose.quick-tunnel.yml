@@ -1,8 +1,10 @@
 services:
   backend:
     build: ./backend
+    image: pipe-dream-backend:v1.0
+    container_name: backend
     env_file:
-      - ./backend/.env
+      - .env
     volumes:
       - ./backend:/app
     networks:
@@ -13,6 +15,10 @@ services:
       context: .
       dockerfile: Dockerfile
       target: nginx
+      args:
+        VITE_API_KEY: ${VITE_API_KEY}
+    image: pipe-dream-nginx:v1.0
+    container_name: nginx
     depends_on:
       - backend
     networks:
@@ -20,6 +26,7 @@ services:
 
   cloudflared:
     image: cloudflare/cloudflared
+    container_name: cloudflared
     command: tunnel --url nginx:80
     depends_on:
       - nginx

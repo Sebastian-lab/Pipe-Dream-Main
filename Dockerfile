@@ -1,5 +1,8 @@
+ARG VITE_API_KEY
 FROM node:20-slim AS base
+ARG VITE_API_KEY
 WORKDIR /app
+ENV VITE_API_KEY=${VITE_API_KEY}
 COPY package*.json .
 RUN npm install
 COPY . .

@@ -1,8 +1,10 @@
 services:
   backend:
     build: ./backend
+    image: pipe-dream-backend:v1.0
+    container_name: backend
     env_file:
-      - ./backend/.env
+      - .env
     volumes:
       - ./backend:/app
     networks:
@@ -14,6 +16,10 @@ services:
     build:
       context: .
       target: development
+      args:
+        VITE_API_KEY: ${VITE_API_KEY}
+    image: pipe-dream-frontend:v1.0
+    container_name: frontend
     environment:
       - VITE_API_URL=http://localhost:8000
       - VITE_PROXY_TARGET=http://backend:8000
