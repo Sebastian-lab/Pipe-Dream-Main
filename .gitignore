@@ -1,8 +1,5 @@
 # Environment files
 .env*
-.env.local
-backend/.env*
-backend/.env.local
 
 # Python
 __pycache__/
@@ -28,7 +25,6 @@ wheels/
 MANIFEST
 
 # Virtual environments
-.env
 .venv
 env/
 venv/
