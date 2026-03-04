@@ -18,15 +18,19 @@ class Settings(BaseSettings):
     CORS_ORIGINS: Union[List[str], str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
     model_config = SettingsConfigDict(
-        env_file=[".env", ".env.local"],
-        case_sensitive=False
+        env_file=["../.env"],
+        case_sensitive=False,
+        extra="ignore"
     )
     
     @field_validator('CORS_ORIGINS', mode='before')
     @classmethod
     def parse_cors_origins(cls, v):
-        if isinstance(v, str) and not v.startswith('['):
-            return [i.strip() for i in v.split(',')]
+        if isinstance(v, str):
+            if v.strip() == "*":
+                return ["*"]
+            if not v.startswith('['):
+                return [i.strip() for i in v.split(',')]
         return v
 
 settings = Settings()

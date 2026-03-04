@@ -1,20 +1,17 @@
 #!/bin/bash
-
 # Pipe Dream Setup Script
 
 set -e
 
-echo "Checking for existing environment files..."
+ENV_CREATED=false
 
-# Backend .env (only if it doesn't exist)
-if [ ! -f "backend/.env" ]; then
-    echo "Creating backend/.env..."
-    cat > backend/.env << 'EOF'
-# --- Database Configuration ---
+# Root .env (only if it doesn't exist)
+if [ ! -f ".env" ]; then
+    echo "Creating .env..."
+    cat > .env << 'EOF'
+# --- Backend Configuration ---
 MONGO_URI=YOUR_MONGO_URI_HERE
 DB_NAME=weather_db
-
-# --- Application Settings ---
 APP_ENV=development
 DEBUG=True
 
@@ -22,53 +19,56 @@ DEBUG=True
 API_KEY=dev_weather_api_key_secure_change_me_later_2024
 
 # --- CORS Origins ---
-CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
-EOF
-else
-    echo "backend/.env already exists - skipping"
-fi
+# Use * for quick tunnel/production, or specific domains for local dev
+CORS_ORIGINS=*
 
-# Backend .env.local (only if it doesn't exist)
-if [ ! -f "backend/.env.local" ]; then
-    echo "Creating backend/.env.local..."
-    cat > backend/.env.local << 'EOF'
-# --- Local Development Environment ---
-APP_ENV=development
-DEBUG=True
-
-# --- API Security ---
-API_KEY=dev_weather_api_key_secure_change_me_later_2024
-
-# --- CORS Origins (Local Development) ---
-CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
-
-# --- Network Access ---
-# You can add your local network ranges here when ready for LAN access:
-# CORS_ORIGINS=http://192.168.*.*,http://10.0.*.*
-
-# --- Database Configuration (inherits from main .env) ---
-# These settings will be read from the main .env file
-EOF
-else
-    echo "backend/.env.local already exists - skipping"
-fi
-
-# Frontend .env.local (only if it doesn't exist)
-if [ ! -f ".env.local" ]; then
-    echo "Creating .env.local..."
-    cat > .env.local << 'EOF'
-# Frontend Environment Variables for Local Development
-VITE_API_URL=http://localhost:8000
+# --- Frontend Configuration ---
 VITE_API_KEY=dev_weather_api_key_secure_change_me_later_2024
+# VITE_API_URL is not needed for production (uses relative /api via nginx)
 EOF
+    ENV_CREATED=true
 else
-    echo ".env.local already exists - skipping"
+    echo "Using existing .env file"
+fi
+
+# Backend virtual environment
+if [ ! -d "backend/.venv" ]; then
+    echo "Creating backend virtual environment..."
+    python3 -m venv backend/.venv
+    source backend/.venv/bin/activate
+    python -m pip install --upgrade pip
+    python -m pip install --upgrade setuptools wheel
+    python -m pip install -r backend/requirements.txt
+    deactivate
+else
+    echo "Using existing backend virtual environment"
+fi
+
+# Node.js setup with nvm
+export NVM_DIR="$HOME/.nvm"
+
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+    echo "Loading nvm..."
+    source "$NVM_DIR/nvm.sh"
+    
+    if [ -f ".nvmrc" ]; then
+        NODE_VERSION=$(cat .nvmrc)
+        echo "Installing Node.js $NODE_VERSION..."
+        nvm install "$NODE_VERSION"
+        nvm use "$NODE_VERSION"
+    fi
+    
+    echo "Installing Node.js packages..."
+    npm ci
+else
+    echo "nvm not found - skipping Node.js setup"
+    echo "To install nvm: https://github.com/nvm-sh/nvm"
 fi
 
 echo
 echo "Setup complete!"
-echo
-echo "Next:"
-echo "1. Add MONGO_URI to backend/.env (if needed)"
-echo -e "2. Start backend:\n\tsource .venv/bin/activate\n\tcd backend\n\tpython3 main.py"
-echo -e "3. Start frontend (in a separate terminal):\n\tnpm run dev -- --host"
+
+if [ "$ENV_CREATED" = true ]; then
+    echo
+    echo "IMPORTANT: Update MONGO_URI in .env with your MongoDB connection string"
+fi

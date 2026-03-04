@@ -1,7 +1,7 @@
 import { fetchWeatherHistory, fetchWeatherReadings } from '../api/weather';
 import type { CityReading } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export function setupWeatherWidget(displayContainer: HTMLDivElement) {
   let isFetching = false;
@@ -105,7 +105,7 @@ export function setupWeatherWidget(displayContainer: HTMLDivElement) {
       if (errorMsg.includes('API key') || errorMsg.includes('401') || errorMsg.includes('403')) {
         displayContainer.innerHTML = `
           <p style="color:red">Authentication Error: ${errorMsg}</p>
-          <p style="color:orange; font-size:0.9em;">Check your API key configuration in .env.local</p>
+          <p style="color:orange; font-size:0.9em;">Check your API key configuration in .env</p>
         `;
       } else if (errorMsg.includes('CORS') || errorMsg.includes('404')) {
         displayContainer.innerHTML = `

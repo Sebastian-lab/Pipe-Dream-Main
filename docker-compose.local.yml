@@ -12,30 +12,21 @@ services:
     ports:
       - "8000:8000"
 
-  nginx:
+  frontend:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: nginx
+      target: development
       args:
         VITE_API_KEY: ${VITE_API_KEY}
-    image: pipe-dream-nginx:v1.0
-    container_name: nginx
-    depends_on:
-      - backend
+    image: pipe-dream-frontend:v1.0
+    container_name: frontend
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_PROXY_TARGET=http://backend:8000
     networks:
       - app-network
     ports:
-      - "8080:80"
-
-  cloudflared:
-    image: cloudflare/cloudflared
-    command: tunnel --url nginx:80
-    depends_on:
-      - nginx
-    networks:
-      - app-network
-    restart: unless-stopped
+      - "5173:5173"
 
 networks:
   app-network:

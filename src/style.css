@@ -1,5 +1,65 @@
+@font-face {
+  font-family: 'delargodtblackitalic';
+  src: url('https://static.wfonts.com/data/2015/12/02/delargodt/delargodtblackitalic.ttf') format('ttf');
+  font-display: swap;
+}
+
+#preview-render {
+  font-family: 'delargodtblackitalic', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 32px;
+  color: #373c44;
+}
+
+@font-face {
+  font-family: 'GothamRounded-Bold';
+  src: url('https://static.wfonts.com/data/2015/06/27/gotham-rounded/GothamRounded-Bold.otf') format('otf');
+  font-display: swap;
+}
+
+#preview-render {
+  font-family: 'GothamRounded-Bold', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 32px;
+  color: #373c44;
+}
+
+@font-face {
+  font-family: 'SourceSansPro-Black';
+  src: url('https://static.wfonts.com/data/2016/02/17/source-sans-pro/SourceSansPro-Black.ttf') format('ttf');
+  font-display: swap;
+}
+
+#preview-render {
+  font-family: 'SourceSansPro-Black', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 32px;
+  color: #373c44;
+}
+
+@font-face {
+  font-family: 'Merriweather-Black';
+  src: url('https://static.wfonts.com/data/2016/02/15/merriweather/Merriweather-Black.ttf') format('ttf');
+  font-display: swap;
+}
+
+#preview-render {
+  font-family: 'Merriweather-Black', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 32px;
+  color: #373c44;
+}
+
+@font-face {
+  font-family: 'RobotoMono-Bold';
+  src: url('https://static.wfonts.com/data/2016/05/18/roboto-mono/RobotoMono-Bold.ttf') format('ttf');
+  font-display: swap;
+}
+
+#preview-render {
+  font-family: 'RobotoMono-Bold', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 32px;
+  color: #373c44;
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, delargodtblackitalic, GothamRounded-Bold, Merriweather-Black, SourceSansPro-Black;
   line-height: 1.5;
   font-weight: 400;
 
@@ -24,10 +84,16 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  display: block;
   min-width: 320px;
   min-height: 100vh;
+  padding: 2rem;
+}
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 h1 {
@@ -69,7 +135,7 @@ button {
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
-  font-family: inherit;
+  font-family: Merriweather-Black;
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
@@ -99,7 +165,7 @@ button:focus-visible {
   margin-top: 20px;
   width: 100%;
   border-collapse: collapse;
-  font-family: monospace;
+  font-family: RobotoMono-Bold;
 }
 
 .temp-table th, .temp-table td {
@@ -125,4 +191,65 @@ button + button {
 .loading-text {
     font-style: italic;
     color: #888;
+}
+
+.tabs-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 400px;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 500;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-btn:hover {
+  color: #fff;
+  background-color: #333;
+}
+
+.tab-btn.active {
+  color: #fff;
+  background-color: #333;
+  border-bottom-color: #646cff;
+}
+
+.tab-content {
+  padding: 20px 0;
+}
+
+.home-content {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.home-content h1 {
+  margin-bottom: 16px;
+}
+
+.home-content .description {
+  color: #aaa;
+  font-size: 1.2em;
+  font-family: GothamRounded-Bold;
+  max-width: 600px;
+  margin: 0 auto;
 }

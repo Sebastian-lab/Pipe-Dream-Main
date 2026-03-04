@@ -1,7 +1,7 @@
 import type { CityReading } from '../types';
 
-// Use environment variable or fallback for local dev
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Use relative URL (works with nginx proxy) or environment variable for local dev
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 const API_KEY = import.meta.env.VITE_API_KEY || '';
 
 export async function fetchWeatherReadings(): Promise<CityReading[]> {
