@@ -39,9 +39,25 @@ install_cloudflared() {
     fi
 
     echo "Installing cloudflared for $os ($arch)..."
-    curl -L "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${arch}" -o /usr/local/bin/cloudflared
-    chmod +x /usr/local/bin/cloudflared
-    echo "cloudflared installed successfully"
+    
+    local install_dir="/usr/local/bin"
+    local install_path="$install_dir/cloudflared"
+    
+    curl -L "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${arch}" -o "$install_path" 2>/dev/null
+    
+    if [ ! -f "$install_path" ] || [ ! -s "$install_path" ]; then
+        install_dir="$HOME/.local/bin"
+        install_path="$install_dir/cloudflared"
+        mkdir -p "$install_dir"
+        curl -L "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${arch}" -o "$install_path"
+    fi
+    
+    chmod +x "$install_path"
+    echo "cloudflared installed to $install_path"
+    
+    if [[ ":$PATH:" != *":$install_dir:"* ]]; then
+        export PATH="$install_dir:$PATH"
+    fi
 }
 
 setup_cloudflared_tunnel() {
@@ -217,6 +233,8 @@ run_cloudflared() {
         domain_was_empty=true
     fi
 
+    export PATH="$HOME/.local/bin:$PATH"
+    
     if command -v cloudflared &> /dev/null; then
         echo "cloudflared already installed"
     else
