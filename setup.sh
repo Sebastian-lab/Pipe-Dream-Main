@@ -39,9 +39,25 @@ install_cloudflared() {
     fi
 
     echo "Installing cloudflared for $os ($arch)..."
-    curl -L "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${arch}" -o /usr/local/bin/cloudflared
-    chmod +x /usr/local/bin/cloudflared
-    echo "cloudflared installed successfully"
+    
+    local install_dir="/usr/local/bin"
+    local install_path="$install_dir/cloudflared"
+    
+    curl -L "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${arch}" -o "$install_path" 2>/dev/null
+    
+    if [ ! -f "$install_path" ] || [ ! -s "$install_path" ]; then
+        install_dir="$HOME/.local/bin"
+        install_path="$install_dir/cloudflared"
+        mkdir -p "$install_dir"
+        curl -L "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${arch}" -o "$install_path"
+    fi
+    
+    chmod +x "$install_path"
+    echo "cloudflared installed to $install_path"
+    
+    if [[ ":$PATH:" != *":$install_dir:"* ]]; then
+        export PATH="$install_dir:$PATH"
+    fi
 }
 
 setup_cloudflared_tunnel() {
@@ -53,69 +69,152 @@ setup_cloudflared_tunnel() {
         return 1
     fi
 
+    local api_token
+    api_token=$(grep "^CLOUDFLARE_API_TOKEN=" "$ENV_FILE" 2>/dev/null | cut -d'=' -f2-)
+
+    if [ -z "$api_token" ]; then
+        echo "CLOUDFLARE_API_TOKEN not set in .env."
+        echo "Get a token from: Cloudflare Dashboard > API Tokens > Create Custom Token"
+        echo "Required permissions: Account > Cloudflare Tunnel:Edit, Zone > DNS:Edit"
+        return 1
+    fi
+
     if ! command -v cloudflared &> /dev/null; then
         echo "cloudflared not found. Installing..."
         install_cloudflared || return 1
     fi
 
     local tunnel_name="pipe-dream"
-    local tunnel_dir="$HOME/.cloudflared"
-    local project_tunnel_dir="$CLOUDFLARED_DIR"
-
-    mkdir -p "$tunnel_dir"
-
+    local account_id
     local tunnel_id
-    local existing_tunnel
-    existing_tunnel=$(cloudflared tunnel list 2>/dev/null | grep "$tunnel_name" || true)
+    local tunnel_token
 
-    if [ -n "$existing_tunnel" ]; then
-        echo "Tunnel '$tunnel_name' already exists. Updating DNS..."
-        cloudflared tunnel route DNS "$tunnel_name" "$domain" 2>/dev/null || true
-        echo "Tunnel DNS updated for $domain"
-        tunnel_id=$(cloudflared tunnel list | grep "$tunnel_name" | awk '{print $1}')
-    else
-        echo "Creating Cloudflare Tunnel: $tunnel_name"
-        
-        if ! cloudflared tunnel create "$tunnel_name" 2>&1 | grep -q "created"; then
-            echo
-            echo "Tunnel creation requires authentication."
-            echo "Run the following commands manually:"
-            echo "  1. cloudflared login"
-            echo "  2. cloudflared tunnel create $tunnel_name"
-            echo "  3. cloudflared tunnel route DNS $tunnel_name $domain"
-            echo
-            echo "Then run ./setup.sh --cloudflared again"
-            return 0
-        fi
-        
-        tunnel_id=$(cloudflared tunnel list | grep "$tunnel_name" | awk '{print $1}')
-        
-        echo "Pointing $domain to tunnel..."
-        cloudflared tunnel route DNS "$tunnel_name" "$domain"
+    account_id=$(grep "^CLOUDFLARE_ACCOUNT_ID=" "$ENV_FILE" 2>/dev/null | cut -d'=' -f2-)
+
+    if [ -z "$account_id" ]; then
+        echo "Getting Cloudflare account ID..."
+        account_id=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts" \
+            -H "Authorization: Bearer $api_token" \
+            -H "Content-Type: application/json" | grep -o '"id":"[a-f0-9-]*"' | head -1 | cut -d'"' -f4)
     fi
 
-    echo "Copying credentials to project directory..."
-    mkdir -p "$project_tunnel_dir"
-    local creds_file
-    creds_file=$(ls "$tunnel_dir"/*.json 2>/dev/null | grep -v "cert.pem" | head -n1)
-    cp "$creds_file" "$project_tunnel_dir/creds.json"
-    chmod 644 "$project_tunnel_dir/creds.json"
+    if [ -z "$account_id" ]; then
+        echo "Failed to get account ID. Add CLOUDFLARE_ACCOUNT_ID to .env manually."
+        return 1
+    fi
+    echo "Using Account ID: $account_id"
 
-    echo "Creating cloudflared config..."
+    local existing_tunnel
+    existing_tunnel=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$account_id/cfd_tunnel" \
+        -H "Authorization: Bearer $api_token" \
+        -H "Content-Type: application/json" | grep -o "\"name\":\"$tunnel_name\"" || true)
+
+    if [ -n "$existing_tunnel" ]; then
+        echo "Tunnel '$tunnel_name' already exists. Getting details..."
+        tunnel_id=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$account_id/cfd_tunnel" \
+            -H "Authorization: Bearer $api_token" \
+            -H "Content-Type: application/json" | grep -o '"id":"[a-f0-9-]*"' | head -1 | cut -d'"' -f4)
+        
+        echo "Getting tunnel token..."
+        tunnel_token=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$account_id/cfd_tunnel/$tunnel_id/token" \
+            -H "Authorization: Bearer $api_token" \
+            -H "Content-Type: application/json" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+        
+        if [ -z "$tunnel_token" ]; then
+            echo "Token not available via API. Deleting and recreating tunnel..."
+            curl -s -X DELETE "https://api.cloudflare.com/client/v4/accounts/$account_id/cfd_tunnel/$tunnel_id" \
+                -H "Authorization: Bearer $api_token" \
+                -H "Content-Type: application/json"
+            
+            echo "Creating new tunnel..."
+            local create_response
+            create_response=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$account_id/cfd_tunnel" \
+                -H "Authorization: Bearer $api_token" \
+                -H "Content-Type: application/json" \
+                -d "{\"name\": \"$tunnel_name\", \"config_src\": \"cloudflare\"}")
+
+            tunnel_id=$(echo "$create_response" | grep -o '"id":"[a-f0-9-]*"' | cut -d'"' -f4)
+            tunnel_token=$(echo "$create_response" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+        fi
+    else
+        echo "Creating Cloudflare Tunnel: $tunnel_name"
+        local create_response
+        create_response=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$account_id/cfd_tunnel" \
+            -H "Authorization: Bearer $api_token" \
+            -H "Content-Type: application/json" \
+            -d "{\"name\": \"$tunnel_name\", \"config_src\": \"cloudflare\"}")
+
+        if ! echo "$create_response" | grep -q '"success":true'; then
+            echo "Failed to create tunnel: $create_response"
+            return 1
+        fi
+
+        tunnel_id=$(echo "$create_response" | grep -o '"id":"[a-f0-9-]*"' | cut -d'"' -f4)
+        tunnel_token=$(echo "$create_response" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+        echo "Tunnel created with ID: $tunnel_id"
+    fi
+
+    local zone_id
+    zone_id=$(echo "$domain" | grep -oP '\.[^.]+$' | head -1)
+    zone_id=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=${domain#$zone_id.}" \
+        -H "Authorization: Bearer $api_token" \
+        -H "Content-Type: application/json" | grep -o '"id":"[a-f0-9-]*"' | head -1 | cut -d'"' -f4)
+
+    if [ -n "$zone_id" ]; then
+        for subdomain in "$domain" "www.$domain"; do
+            echo "Checking DNS record for $subdomain..."
+            local existing_record
+            existing_record=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$zone_id/dns_records?name=$subdomain" \
+                -H "Authorization: Bearer $api_token" \
+                -H "Content-Type: application/json" | grep -o '"id":"[a-f0-9-]*"' | head -1 | cut -d'"' -f4)
+            
+            if [ -n "$existing_record" ]; then
+                echo "Deleting old DNS record for $subdomain..."
+                curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/$zone_id/dns_records/$existing_record" \
+                    -H "Authorization: Bearer $api_token" \
+                    -H "Content-Type: application/json" | grep -q '"success":true' || true
+            fi
+            
+            echo "Creating DNS record for $subdomain..."
+            curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zone_id/dns_records" \
+                -H "Authorization: Bearer $api_token" \
+                -H "Content-Type: application/json" \
+                -d "{\"type\": \"CNAME\", \"name\": \"$subdomain\", \"content\": \"$tunnel_id.cfargotunnel.com\", \"proxied\": true}" | grep -q '"success":true' || true
+            echo "DNS record created for $subdomain"
+        done
+    fi
+
+    if [ -z "$tunnel_token" ]; then
+        echo "Getting tunnel token..."
+        tunnel_token=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$account_id/cfd_tunnel/$tunnel_id/token" \
+            -H "Authorization: Bearer $api_token" \
+            -H "Content-Type: application/json" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+    fi
+
+    echo "Saving tunnel token..."
     mkdir -p "$CLOUDFLARED_DIR"
-    cat > "$CLOUDFLARED_DIR/config.yml" << EOF
-tunnel: $tunnel_id
-credentials-file: /etc/cloudflared/creds.json
+    echo "$tunnel_token" > "$CLOUDFLARED_DIR/token"
+    chmod 644 "$CLOUDFLARED_DIR/token"
 
+    cat > "$CLOUDFLARED_DIR/config.yml" << EOF
 ingress:
   - hostname: $domain
     service: http://nginx:80
-  - service: http://localhost:8090
+  - hostname: www.$domain
+    service: http://nginx:80
+  - service: http_status:404
 EOF
+
+    if grep -q "^CLOUDFLARE_TOKEN=" "$ENV_FILE" 2>/dev/null; then
+        sed -i "s|^CLOUDFLARE_TOKEN=.*|CLOUDFLARE_TOKEN=$tunnel_token|" "$ENV_FILE"
+    else
+        echo "CLOUDFLARE_TOKEN=$tunnel_token" >> "$ENV_FILE"
+    fi
 
     echo
     echo "Cloudflare Tunnel setup complete!"
     echo "Tunnel ID: $tunnel_id"
+    echo "Token saved to .env as CLOUDFLARE_TOKEN"
 }
 
 run_env() {
@@ -143,6 +242,15 @@ VITE_API_KEY=dev_weather_api_key_secure_change_me_later_2024
 
 # --- Domain Configuration ---
 DOMAIN=example.com
+
+# --- Cloudflare Configuration ---
+# Get from Cloudflare Dashboard > API Tokens > Create Custom Token
+# Required permissions:
+#   Account > Cloudflare Tunnel:Edit
+#   Zone > DNS:Edit
+CLOUDFLARE_API_TOKEN=
+# Get from Cloudflare Dashboard > Overview > Account ID (at the bottom)
+CLOUDFLARE_ACCOUNT_ID=
 EOF
         echo ".env created with default values"
     fi
@@ -217,6 +325,8 @@ run_cloudflared() {
         domain_was_empty=true
     fi
 
+    export PATH="$HOME/.local/bin:$PATH"
+    
     if command -v cloudflared &> /dev/null; then
         echo "cloudflared already installed"
     else
@@ -241,6 +351,7 @@ show_usage() {
     echo "  --env          Create/update .env file"
     echo "  --py           Setup Python virtual environment"
     echo "  --npm          Install npm packages"
+    echo "  --dev          Same as running --env --py --npm"
     echo "  --cloudflared  Install cloudflared and setup tunnel"
     echo "  --help         Show this help message"
     echo
@@ -276,6 +387,11 @@ main() {
                 do_py=true
                 ;;
             --npm)
+                do_npm=true
+                ;;
+            --dev)
+                do_env=true
+                do_py=true
                 do_npm=true
                 ;;
             --cloudflared)
