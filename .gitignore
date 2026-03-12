@@ -76,3 +76,6 @@ out/
 
 # Images
 *.png
+
+# Cloudflare Tunnel
+cloudflared/

@@ -4,21 +4,25 @@ A data pipelining project focused on weather forecasting and analysis using mach
 
 ## Related Repositories
 
-- ### [Pipe-Dream-Data-Collection](https://github.com/Sebastian-lab/Pipe-Dream-Data-Collection)
+### [Pipe-Dream-Data-Collection](https://github.com/Sebastian-lab/Pipe-Dream-Data-Collection)
+&nbsp;
+Data collection repository which runs every minute an on AWS EC2 instance.
 
-- ### [Pipe-Dream-Machine-Learning](https://github.com/Sebastian-lab/Pipe-Dream-Machine-Learning)
+### [Pipe-Dream-Machine-Learning](https://github.com/Sebastian-lab/Pipe-Dream-Machine-Learning)
+&nbsp;
+Includes the weather forecasting and clustering models.
 
 ## Prerequisites
 
 - Docker 29.2.1+
-- Python 3.12+ (`./setup.sh` installs the packages below into a virtual)
+- Python 3.12+ (`./setup.sh --py` installs the packages below into a virtual)
     - FastAPI
     - Uvicorn
     - Pydantic
     - PyMongo
     - Certifi
     - python-dotenv
-- Node.js 20+ (if you have [nvm](https://github.com/nvm-sh/nvm) `./setup.sh` installs the packages below)
+- Node.js 20+ (`./setup.sh --npm` installs the packages below, also works with [nvm](https://github.com/nvm-sh/nvm))
     - Vite
     - TypeScript
     - express
@@ -30,7 +34,9 @@ A data pipelining project focused on weather forecasting and analysis using mach
 
 ### 1. Setup environment
 
-`./setup.sh`
+    ./setup.sh --dev
+
+Creates a `.env` file, installs Python packages in a virtual environment, and installs npm packages locally.
 
 ### 2. Add your MongoDB URI
 
@@ -38,7 +44,9 @@ A data pipelining project focused on weather forecasting and analysis using mach
 
 ### 3. Start locally with Docker
 
-`docker compose -f docker-compose.local.yml up --build`
+    docker compose -f docker-compose.local.yml up --build
+
+This starts two containers: the `frontend` container running Vite and the `backend` container running Uvicorn. If you run in detached mode, you stop them with `docker compose -f docker-compose.local.yml down`.
 
 ### 4. Open Pipe-Dream in your browser
 
@@ -62,7 +70,17 @@ Access via Cloudflare tunnel URL (output in console). No ports exposed.
 
 ### 3. Production
 
-This is not finished yet.
+    docker compose up --build
+
+This command builds and starts three containers:
+
+| Container | Description |
+|-----------|-------------|
+| `backend` | Uvicorn server running the API on port 8000 |
+| `nginx` | Serves the statically-built Vite frontend and proxies `/api` requests to the backend |
+| `cloudflared` | Establishes a secure Cloudflare Tunnel for public access via your custom domain |
+
+Once running, the application is accessible through your Cloudflare-managed domain. No public ports need to be opened on your server.
 
 ---
 
@@ -72,20 +90,33 @@ All configuration is in a single `.env` file at the project root.
 
 ```env
 # --- Backend Configuration ---
-MONGO_URI=your_mongodb_connection_string
+MONGO_URI=YOUR_MONGO_URI_HERE
 DB_NAME=weather_db
 APP_ENV=development
 DEBUG=True
 
 # --- API Security ---
-API_KEY=your_api_key_here
+API_KEY=dev_weather_api_key_secure_change_me_later_2024
 
 # --- CORS Origins ---
-# Use * for production/quick tunnel, or specific domains for local dev
+# Use * for quick tunnel/production, or specific domains for local dev
 CORS_ORIGINS=*
 
 # --- Frontend Configuration ---
-VITE_API_KEY=your_api_key_here
+VITE_API_KEY=dev_weather_api_key_secure_change_me_later_2024
+# VITE_API_URL is not needed for production (uses relative /api via nginx)
+
+# --- Domain Configuration ---
+DOMAIN=example.com
+
+# --- Cloudflare Configuration ---
+# Get from Cloudflare Dashboard > API Tokens > Create Custom Token
+# Required permissions:
+#   Account > Cloudflare Tunnel:Edit
+#   Zone > DNS:Edit
+CLOUDFLARE_API_TOKEN=
+# Get from Cloudflare Dashboard > Overview > Account ID (at the bottom)
+CLOUDFLARE_ACCOUNT_ID=
 ```
 
 ### Setting Up MongoDB
@@ -101,16 +132,20 @@ VITE_API_KEY=your_api_key_here
 ## Architecture
 
 ```
-Internet → Cloudflare Tunnel (optional) → nginx → frontend (static)
-                                              → backend (API)
+Internet
+    ↓
+Cloudflare Tunnel
+    ↓
+nginx:80 → frontend (static files)
+         ↘ backend (FastAPI on :8000)
 ```
 
 | Service | Port | Purpose |
 |---------|------|---------|
 | frontend | 5173 | Vite dev server (local only) |
-| nginx | 80 | Serves frontend static files, proxies API |
+| nginx | 80 | Serves frontend static files, proxies API requests to backend |
 | backend | 8000 | FastAPI application |
-| cloudflared | - | Creates tunnel to internet |
+| cloudflared | - | Creates secure tunnel to the internet via Cloudflare; exposes nginx on port 80 internally |
 
 ---
 
