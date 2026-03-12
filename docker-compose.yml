@@ -31,9 +31,11 @@ services:
   cloudflared:
     image: cloudflare/cloudflared
     container_name: cloudflared
-    command: tunnel --config /etc/cloudflared/config.yml run
+    command: tunnel --config /etc/cloudflared/config.yml run --token-file /etc/cloudflared/token
     volumes:
       - ./cloudflared:/etc/cloudflared:ro
+    env_file:
+      - .env
     depends_on:
       - nginx
     networks:
