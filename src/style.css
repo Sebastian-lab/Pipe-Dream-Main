@@ -253,3 +253,71 @@ button + button {
   max-width: 600px;
   margin: 0 auto;
 }
+
+.predictions-header {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.predictions-header label {
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+#city-select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background-color: #1a1a1a;
+  color: #fff;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+#city-select:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+.predictions-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.predictions-table th, .predictions-table td {
+  border: 1px solid #444;
+  padding: 10px;
+  text-align: left;
+}
+
+.predictions-table th {
+  background-color: #333;
+  color: #fff;
+  font-weight: 600;
+}
+
+.predictions-table tr:nth-child(even) {
+  background-color: #2a2a2a;
+}
+
+.predictions-table tr:hover {
+  background-color: #3a3a3a;
+}
+
+.predictions-meta {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.predictions-meta p {
+  margin: 5px 0;
+  color: #aaa;
+}
+
+.predictions-meta strong {
+  color: #fff;
+}

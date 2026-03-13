@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from app.routers import weather
+from app.routers import weather, predictions
 from app.config import settings
 from middleware.auth import api_key_middleware
 import logging
@@ -52,6 +52,7 @@ app.add_middleware(
 
 # Register Routers
 app.include_router(weather.router, prefix="/api", tags=["Weather"])
+app.include_router(predictions.router, prefix="/api", tags=["Predictions"])
 
 # Global exception handler
 @app.exception_handler(Exception)

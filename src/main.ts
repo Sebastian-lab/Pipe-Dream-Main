@@ -1,5 +1,7 @@
 import './style.css'
 import { setupWeatherWidget } from './components/WeatherWidget'
+import { fetchPredictions } from './api/weather'
+import type { Prediction } from './types'
 
 type Tab = 'home' | 'chart' | 'graph' | 'report';
 
@@ -39,7 +41,15 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     </div>
     
     <div id="graph-content" class="tab-content" style="display: none;">
-      <p>Graph section coming soon...</p>
+      <div id="predictions-container">
+        <div class="predictions-header">
+          <label for="city-select">Select City: </label>
+          <select id="city-select">
+            <option value="">Loading cities...</option>
+          </select>
+        </div>
+        <div id="predictions-table-container"></div>
+      </div>
     </div>
     
     <div id="report-content" class="tab-content" style="display: none;">
@@ -58,3 +68,75 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 setupWeatherWidget(
   document.querySelector<HTMLDivElement>('#table-container')!
 );
+
+let allPredictions: Prediction[] = [];
+
+async function loadPredictions() {
+  try {
+    allPredictions = await fetchPredictions();
+    const cities = [...new Set(allPredictions.map(p => p.city))];
+    const select = document.getElementById('city-select') as HTMLSelectElement;
+    select.innerHTML = cities.map(city => `<option value="${city}">${city}</option>`).join('');
+    
+    if (cities.length > 0) {
+      renderPredictionsTable(cities[0]);
+    }
+    
+    select.addEventListener('change', (e) => {
+      const selectedCity = (e.target as HTMLSelectElement).value;
+      if (selectedCity) {
+        renderPredictionsTable(selectedCity);
+      }
+    });
+  } catch (error) {
+    console.error('Failed to load predictions:', error);
+    const select = document.getElementById('city-select') as HTMLSelectElement;
+    select.innerHTML = '<option value="">Failed to load</option>';
+  }
+}
+
+function renderPredictionsTable(city: string) {
+  const container = document.getElementById('predictions-table-container')!;
+  const predictions = allPredictions.filter(p => p.city === city);
+  
+  if (predictions.length === 0) {
+    container.innerHTML = '<p>No predictions found for this city.</p>';
+    return;
+  }
+  
+  const latestPred = predictions[0];
+  
+  let tableHTML = `
+    <table class="predictions-table">
+      <thead>
+        <tr>
+          <th>Prediction Value</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  
+  latestPred.predictions.forEach((value, index) => {
+    const timestamp = latestPred.timestamps[index] || 'N/A';
+    tableHTML += `
+      <tr>
+        <td>${value.toFixed(4)}</td>
+        <td>${timestamp}</td>
+      </tr>
+    `;
+  });
+  
+  tableHTML += `
+      </tbody>
+    </table>
+    <div class="predictions-meta">
+      <p><strong>Model File:</strong> ${latestPred.model_file}</p>
+      <p><strong>Created At:</strong> ${latestPred.created_at}</p>
+    </div>
+  `;
+  
+  container.innerHTML = tableHTML;
+}
+
+loadPredictions();
