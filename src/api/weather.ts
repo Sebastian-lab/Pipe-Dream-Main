@@ -1,4 +1,4 @@
-import type { CityReading } from '../types';
+import type { CityReading, Prediction } from '../types';
 
 // Use relative URL (works with nginx proxy) or environment variable for local dev
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
@@ -45,4 +45,21 @@ async function getErrorMessage(response: Response): Promise<string> {
   } catch {
     return `HTTP ${response.status}: ${response.statusText}`;
   }
+}
+
+export async function fetchPredictions(): Promise<Prediction[]> {
+  const response = await fetch(`${API_BASE_URL}/api/predictions`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': API_KEY,
+    },
+  });
+  
+  if (!response.ok) {
+    const errorMessage = await getErrorMessage(response);
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
 }
